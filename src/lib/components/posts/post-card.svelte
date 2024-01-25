@@ -19,6 +19,7 @@
     import CreateCommentDialog from "./create-comment-dialog.svelte";
     import { getTimeAgo } from "$lib/utils";
     import * as Popover from "$lib/components/ui/popover";
+    import EditPostDialog from "./edit-post-dialog.svelte";
 
     const timeAgo = new TimeAgo("en-US");
 
@@ -144,7 +145,7 @@
                     {getTimeAgo(post.createdAt, timeAgo)}
                 </p>
             </a>
-            {#if onDelete !== undefined}
+            {#if user._id === post.createdBy._id}
                 <Popover.Root>
                     <Popover.Trigger>
                         <Button variant="ghost" class="p-2 w-max h-max">
@@ -152,15 +153,18 @@
                         </Button>
                     </Popover.Trigger>
                     <Popover.Content class="w-min p-1">
-                        <Button
-                            on:click={handleDelete}
-                            size="sm"
-                            class="rounded-sm"
-                            variant="ghost"
-                        >
-                            <Trash2 class="w-4 h-4 mr-2" />
-                            <span>Delete</span>
-                        </Button>
+                        <EditPostDialog {post} userId={user._id || ""} />
+                        {#if onDelete !== undefined}
+                            <Button
+                                on:click={handleDelete}
+                                size="sm"
+                                class="rounded-sm"
+                                variant="ghost"
+                            >
+                                <Trash2 class="w-4 h-4 mr-2" />
+                                <span>Delete</span>
+                            </Button>
+                        {/if}
                     </Popover.Content>
                 </Popover.Root>
             {/if}

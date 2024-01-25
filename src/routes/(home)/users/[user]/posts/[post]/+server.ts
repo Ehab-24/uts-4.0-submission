@@ -21,10 +21,11 @@ export const GET: RequestHandler = async ({ params }) => {
 	}
 }
 
-export const PATCH: RequestHandler = async ({ params, request }) => {
+export const PUT: RequestHandler = async ({ params, request }) => {
 	try {
 		const payload = await request.json();
 		payload.updatedAt = (new Date()).toString();
+		delete payload._id;
 		const post = await db.collection("posts").findOneAndUpdate({ _id: new ObjectId(params.post) }, { $set: payload });
 		return json(post);
 	} catch (error) {

@@ -3,6 +3,8 @@ import { twMerge } from "tailwind-merge";
 import { cubicOut } from "svelte/easing";
 import type { TransitionConfig } from "svelte/transition";
 import type TimeAgo from "javascript-time-ago";
+import { PUBLIC_CLOUDINARY_CLOUDNAME, PUBLIC_CLOUDINARY_UPLOAD_PRESET } from "$env/static/public";
+import axios from "axios";
 
 export function cn(...inputs: ClassValue[]) {
     return twMerge(clsx(inputs));
@@ -66,4 +68,28 @@ export const flyAndScale = (
 
 export function getTimeAgo(date: string, timeAgo: TimeAgo): string {
     return timeAgo.format(new Date(date));
+}
+
+export async function uploadImage(e: any) {
+    const file = e.target.files[0];
+    if (!file) throw new Error("No file selected");
+
+    const formData = new FormData();
+    formData.append("file", file);
+    formData.append("upload_preset", PUBLIC_CLOUDINARY_UPLOAD_PRESET);
+
+    try {
+        const { data, status } = await axios.post(
+            `https://api.cloudinary.com/v1_1/${PUBLIC_CLOUDINARY_CLOUDNAME}/image/upload`,
+            formData,
+        );
+
+        if (status === 200) {
+            return data.secure_url;
+        } else {
+            return null
+        }
+    } catch (error) {
+        return null
+    }
 }

@@ -25,7 +25,7 @@
 				password,
 			});
 			loading = false;
-			window.location.href = `/users/${data.userId}`;
+			window.location.href = `/users/${data.userId}/feed`;
 		} catch (error) {
 			handleApiRequestError(error);
 		} finally {
@@ -38,7 +38,7 @@
 		try {
 			const { data } = await axios.post("/auth/register", user);
 			loading = false;
-			window.location.href = `/users/${data.userId}`;
+			window.location.href = `/users/${data.userId}/feed`;
 		} catch (error) {
 			handleApiRequestError(error);
 		} finally {

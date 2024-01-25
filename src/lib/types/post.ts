@@ -35,7 +35,7 @@ const PostSchema = z.object({
     media: z.array(z.string()),
     allowComments: z.boolean(),
     type: z.enum(["text", "media", "article", "poll"]),
-    tags: z.array(z.string()),
+    tags: z.array(z.string()).min(1, "At least one tag is required").max(5, "Too many tags (max 5)"),
     createdBy: z.string(),
     createdAt: z.string(),
     updatedAt: z.string(),

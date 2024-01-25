@@ -1,7 +1,7 @@
 <script lang="ts">
     import * as Dialog from "$lib/components/ui/dialog";
     import { Button } from "../ui/button";
-    import { Check, ImagePlus } from "lucide-svelte";
+    import { Check, Edit2, ImagePlus } from "lucide-svelte";
     import Separator from "../ui/separator/separator.svelte";
     import { handleApiRequestError } from "$lib/api";
     import axios from "axios";
@@ -9,35 +9,22 @@
     import Spinner from "../../assets/icons/spinner.svelte";
     import * as Tabs from "$lib/components/ui/tabs";
     import { uploadImage } from "$lib/utils";
-
-    export let userId: string;
+    import type { PopulatedPost } from "$lib/types";
 
     let open = false;
 
-    let type: "text" | "media" | "article" = "text";
-    let allowComments = true;
-    let title = "";
-    let content = "";
-    let tags: string[] = [];
-    let media: string[] = [];
+    export let post: PopulatedPost;
+    export let userId: string;
 
     let loading = false;
-    async function createPost() {
+    async function editPost() {
         try {
             loading = true;
-            await axios.post(`/users/${userId}/posts`, {
-                title,
-                createdBy: userId,
-                content,
-                type,
-                allowComments,
-                tags,
-                media,
-                status: "published",
-                likes: [],
-                comments: [],
+            await axios.put(`/users/${userId}/posts/${post._id}`, {
+                ...post,
+                createdBy: post.createdBy._id,
             });
-            toast.success("Post created successfully");
+            toast.success("Post saved!");
             open = false;
         } catch (error) {
             handleApiRequestError(error);
@@ -49,7 +36,10 @@
 
 <Dialog.Root bind:open onOpenChange={(b) => (open = b)}>
     <Dialog.Trigger>
-        <slot />
+        <Button size="sm" class="rounded-sm" variant="ghost">
+            <Edit2 class="w-4 h-4 mr-2" />
+            <span>Edit</span>
+        </Button>
     </Dialog.Trigger>
     <Dialog.Content class="max-h-[90vh] overflow-y-scroll">
         <Dialog.Header>
@@ -74,13 +64,13 @@
                             disabled={loading}
                             type="text"
                             placeholder="Title"
-                            bind:value={title}
+                            bind:value={post.title}
                             class="text-2xl md:text-3xl bg-transparent border-none outline-none ring-0 font-bold w-full p-2"
                         />
                     </div>
                     <textarea
                         disabled={loading}
-                        bind:value={content}
+                        bind:value={post.content}
                         class="border-none outline-none ring-0 w-full h-48 p-2 bg-transparent"
                         placeholder="What is happening?"
                     />
@@ -96,13 +86,13 @@
                             disabled={loading}
                             type="text"
                             placeholder="My Article"
-                            bind:value={title}
+                            bind:value={post.title}
                             class="text-2xl md:text-3xl bg-transparent border-none outline-none ring-0 font-bold w-full p-2"
                         />
                     </div>
                     <textarea
                         disabled={loading}
-                        bind:value={content}
+                        bind:value={post.content}
                         class="border-none outline-none ring-0 w-full h-48 p-2 bg-transparent"
                         placeholder="Article content"
                     />
@@ -110,11 +100,11 @@
             </Tabs.Content>
         </Tabs.Root>
 
-        {#if media.length > 0}
+        {#if post.media.length > 0}
             <div class="w-full h-max rounded-md bg-slate-800">
                 <img
-                    src={media[0]}
-                    alt={title}
+                    src={post.media[0]}
+                    alt={post.title}
                     class="w-full h-max rounded-md object-contain bg-contain"
                 />
             </div>
@@ -137,7 +127,7 @@
                             loading = true;
                             const url = await uploadImage(e);
                             if (url) {
-                                media = [...media, url];
+                                post.media = [...post.media, url];
                                 toast.success("Image uploaded!");
                             } else toast.error("Failed to upload image");
                             loading = false;
@@ -153,12 +143,12 @@
                     disabled={loading}
                     variant="ghost"
                     size="sm"
-                    class={allowComments
+                    class={post.allowComments
                         ? "text-sky-400 hover:text-sky-500"
                         : "text-red-400 hover:text-red-500"}
-                    on:click={() => (allowComments = !allowComments)}
+                    on:click={() => (post.allowComments = !post.allowComments)}
                 >
-                    {#if allowComments}
+                    {#if post.allowComments}
                         <Check class="w-4 h-4 mr-2" />
                         Allow comments
                     {:else}
@@ -166,8 +156,8 @@
                     {/if}
                 </Button>
             </div>
-            <Button disabled={loading} on:click={createPost} class="min-w-24"
-                >Post</Button
+            <Button disabled={loading} on:click={editPost} class="min-w-24"
+                >Save</Button
             >
         </div>
     </Dialog.Content>

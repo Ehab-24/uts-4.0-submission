@@ -27,7 +27,7 @@
             </div>
         </div>
         <div
-            class="w-[30vw] min-h-screen xl:border-l fixed right-0 top-0 flex justify-start"
+            class="w-[30vw] hidden xl:flex min-h-screen xl:border-l fixed right-0 top-0 justify-start"
         />
     </div>
 </ThemeProvider>

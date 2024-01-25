@@ -73,23 +73,35 @@
 <main class="flex px-4 flex-col w-full pb-12">
     <div class="w-full h-80 relative rounded-md">
         <Fullscreen let:onToggle>
-            <img
-                on:click={onToggle}
-                src="https://loremflickr.com/680/680"
-                alt={data.user.displayName}
-                class="w-full h-full object-cover dark:bg-slate-800 rounded-md object-center"
-            />
+            {#if data.user.profilePicture}
+                <img
+                    on:click={onToggle}
+                    src={data.user.profilePicture}
+                    alt={data.user.displayName}
+                    class="w-full h-full object-cover dark:bg-slate-800 rounded-md object-center"
+                />
+            {:else}
+                <div
+                    class="w-full h-full flex items-center justify-center rounded-md bg-slate-800 dark:bg-slate-900"
+                />
+            {/if}
         </Fullscreen>
         <div
             class="absolute border-[6px] border-slate-50 dark:border-slate-950 dark:bg-slate-800 bottom-0 left-4 xl:left-6 w-40 h-40 xl:w-56 xl:h-56 rounded-full overflow-hidden translate-y-1/2"
         >
             <Fullscreen let:onToggle>
-                <img
-                    on:click={onToggle}
-                    src="https://loremflickr.com/680/680"
-                    alt={data.user.displayName}
-                    class="dark:bg-slate-800"
-                />
+                {#if data.user.avatar}
+                    <img
+                        on:click={onToggle}
+                        src={data.user.avatar}
+                        alt={data.user.displayName}
+                        class="dark:bg-slate-800 object-cover object-center w-full h-full"
+                    />
+                {:else}
+                    <div
+                        class="w-full h-full flex items-center justify-center rounded-md bg-slate-800 dark:bg-slate-900"
+                    />
+                {/if}
             </Fullscreen>
         </div>
     </div>

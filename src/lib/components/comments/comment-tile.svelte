@@ -1,6 +1,11 @@
 <script lang="ts">
     import * as Avatar from "$lib/components/ui/avatar";
-    import { CircleUserRound, MoreVertical, ThumbsUp } from "lucide-svelte";
+    import {
+        CircleUserRound,
+        MoreVertical,
+        ThumbsUp,
+        Trash2,
+    } from "lucide-svelte";
     import { getTimeAgo } from "$lib/utils";
     import { Button } from "$lib/components/ui/button";
     import CreateReplyDialog from "$lib/components/posts/create-reply-dialog.svelte";
@@ -10,10 +15,13 @@
     import { toast } from "svelte-sonner";
     import { handleApiRequestError } from "$lib/api";
     import ReplyTile from "./reply-tile.svelte";
+    import * as Popover from "$lib/components/ui/popover";
+    import EditCommentDialog from "../posts/edit-comment-dialog.svelte";
 
     export let comment: Comment;
     export let user: User;
     export let post: PopulatedPost;
+    export let onDelete: () => void;
 
     const timeAgo = new TimeAgo("en-US");
 
@@ -28,6 +36,21 @@
             );
             comment.likes = [...comment.likes, user._id!];
             toast.success("Comment liked!");
+        } catch (error) {
+            handleApiRequestError(error);
+        } finally {
+            loading = false;
+        }
+    }
+
+    async function handleDelete() {
+        loading = true;
+        try {
+            await axios.delete(
+                `/users/${post.createdBy._id}/posts/${post._id}/comments/${comment._id}`,
+            );
+            onDelete();
+            toast.success("Comment deleted!");
         } catch (error) {
             handleApiRequestError(error);
         } finally {
@@ -75,9 +98,35 @@
             </div>
 
             {#if comment.createdBy === user._id}
-                <Button variant="ghost" class="p-2 w-max h-max">
-                    <MoreVertical class="w-4 h-4" />
-                </Button>
+                {#if user._id === comment.createdBy}
+                    <Popover.Root>
+                        <Popover.Trigger>
+                            <Button variant="ghost" class="p-2 w-max h-max">
+                                <MoreVertical class="w-4 h-4" />
+                            </Button>
+                        </Popover.Trigger>
+                        <Popover.Content class="w-min p-1">
+                            {#if onDelete !== undefined}
+                                <Button
+                                    on:click={handleDelete}
+                                    size="sm"
+                                    class="rounded-sm"
+                                    variant="ghost"
+                                >
+                                    <Trash2 class="w-4 h-4 mr-2" />
+                                    <span>Delete</span>
+                                </Button>
+                            {/if}
+                            <EditCommentDialog
+                                onSuccess={(content) =>
+                                    (comment.content = content)}
+                                {post}
+                                {user}
+                                {comment}
+                            />
+                        </Popover.Content>
+                    </Popover.Root>
+                {/if}
             {/if}
         </div>
         <div class="text-sm mt-2">

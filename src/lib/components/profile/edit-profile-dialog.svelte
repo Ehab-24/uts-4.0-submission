@@ -9,6 +9,7 @@
     import axios from "axios";
     import { handleApiRequestError } from "$lib/api";
     import { toast } from "svelte-sonner";
+    import { uploadImage } from "$lib/utils";
 
     export let user: User;
     export let onSave: () => void;
@@ -114,12 +115,48 @@
                         {/each}
                     </div>
                 </div>
+
+                <div class="grid w-full max-w-sm self-center gap-1.5">
+                    <Label for="avatar">Avatar</Label>
+                    <Input
+                        id="avatar"
+                        type="file"
+                        on:change={async (e) => {
+                            loading = true;
+                            const image = await uploadImage(e);
+                            if (image) {
+                                user = { ...user, avatar: image };
+                                toast.success("Image uploaded!");
+                            } else toast.error("Failed to upload image");
+                            loading = false;
+                        }}
+                    />
+                </div>
+
+                <div class="grid w-full max-w-sm items-center gap-1.5 mt-4">
+                    <Label for="profilePicture">Profile Picture</Label>
+                    <Input
+                        id="profilePicture"
+                        type="file"
+                        on:change={async (e) => {
+                            loading = true;
+                            const image = await uploadImage(e);
+                            user = {
+                                ...user,
+                                profilePicture: image,
+                            };
+                            loading = false;
+                        }}
+                    />
+                </div>
             </div>
 
             <Separator class="my-[2px]" />
 
             <div class="flex justify-end pt-4 w-full">
-                <Button type="submit" class="min-w-24">Save</Button>
+                <Button disabled={loading} type="submit" class="min-w-24"
+                    >Save</Button
+                >
             </div>
         </form>
     </Dialog.Content>
